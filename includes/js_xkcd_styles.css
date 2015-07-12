@@ -1,0 +1,10 @@
+.xkcd-title {
+	text-align: center;
+}
+
+.xkcd-img {
+	padding: 5px;
+	border: 1px solid rgba(0,0,0,.2);
+	width: 100%;
+	box-shadow: 1px 1px 4px rgba(0,0,0,.5);
+}
