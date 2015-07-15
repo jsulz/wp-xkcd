@@ -9,14 +9,17 @@
  */
 
 	define('JS_XKCD_FOLDER', plugin_dir_path( __FILE__ ));
-	define('JS_XKCD_INCLUDES', trailingslashit(JS_XKCD_FOLDER . 'includes'));
-	define('JS_XKCD_SHORTCODES', JS_XKCD_INCLUDES . 'shortcodes.php');
-	define('JS_XKCD_SCRIPTS', JS_XKCD_INCLUDES . 'scripts.php');
-	define('JS_XKCD_WIDGET', JS_XKCD_INCLUDES . 'widget.php');
+	define('JS_XKCD_INC', trailingslashit(JS_XKCD_FOLDER . 'inc'));
+	define('JS_XKCD_CSS', JS_XKCD_FOLDER . 'css');	
+	define('JS_XKCD_SHORTCODES', JS_XKCD_INC . 'shortcodes.php');
+	define('JS_XKCD_SCRIPTS', JS_XKCD_INC . 'scripts.php');
+	define('JS_XKCD_WIDGET', JS_XKCD_INC . 'widget.php');
+	define('JS_XKCD_CLIENT', JS_XKCD_INC . 'client.php');
 
 
 	require(JS_XKCD_SHORTCODES);
 	require(JS_XKCD_SCRIPTS);
 	require(JS_XKCD_WIDGET);
+	require(JS_XKCD_CLIENT);
 
 ?>

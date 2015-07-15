@@ -1,6 +1,10 @@
 <?php
 
-	function js_xkcd_xkcd_comic( $atts ) {
+	if( ! defined( 'ABSPATH' ) ) exit;
+
+	function js_xkcd_comic( $atts ) {
+
+		$xkcd = new XKCD_Comic;
 
 		$atts = shortcode_atts( array(
 				'comic' 		=> '1',
@@ -11,10 +15,8 @@
 
 		$out = '';
 
-		$content = js_xkcd_xkcd_get_body( $atts['comic'] );
-
-		$content = json_decode($content);
-
+		$content = $xkcd->fetch($atts['comic']);
+		
 		if ($atts['display_title']) {
 
 			$out .= '<h3 class="xkcd-title">' . $content->safe_title .'</h3>'; 
@@ -32,15 +34,6 @@
 
 	}
 
-	add_shortcode( 'xkcd', 'js_xkcd_xkcd_comic' );
+	add_shortcode( 'xkcd', 'js_xkcd_comic' );
 
-	function js_xkcd_xkcd_get_body( $comic ) {
-
-		$full_json = wp_remote_get( 'http://xkcd.com/' . $comic . '/info.0.json' );
-
-		$body = wp_remote_retrieve_body($full_json);
-
-		return $body;
-
-	}
 ?>

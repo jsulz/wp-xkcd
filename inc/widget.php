@@ -60,7 +60,7 @@ class JS_XKCD_Name_Widget extends WP_Widget {
      * @return void Echoes it's output
      **/
     function form( $instance ) {
-        $instance = wp_parse_args( (array) $instance, array( array of option_name => value pairs ) );
+        $instance = wp_parse_args( (array) $instance, array( array_of_option_name => value_pairs ) );
 
         // display field names here using:
         // $this->get_field_id( 'option_name' ) - the CSS ID
