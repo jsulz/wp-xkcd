@@ -16,7 +16,7 @@
 		$out = '';
 
 		$content = $xkcd->fetch($atts['comic']);
-		
+
 		if ($atts['display_title']) {
 
 			$out .= '<h3 class="xkcd-title">' . $content->safe_title .'</h3>'; 

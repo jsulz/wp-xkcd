@@ -19,10 +19,17 @@ if( ! class_exists( 'XKCD' ) ) {
 			//nothing to see here
 		}
 
-		public function get() {
+		public function get($comic) {
 			//see if the transient is set
+			$xkcd_transient = get_transient('xckd_comic_request');
 			//if it isn't, then go and get the comic and be on your way
-			//if it is, 
+			if ( ! empty( $xkcd_transient ) ) {
+				return $xkcd_transient;
+			} else {
+				$request = $this->fetch($comic);
+				set_transient('xckd_comic_request', $request, DAY_IN_SECONDS);
+			}
+
 
 		}
 
@@ -38,13 +45,6 @@ if( ! class_exists( 'XKCD' ) ) {
 
 		}
 
-		public function expiration() {
-		    $today  = current_time( 'today' );
-	        $tomorrow   = strtotime( 'tomorrow', $today );
-	        $reset_time = $tomorrow - $today;
-
-	        return $reset_time;
-		}
 
 	}
 }
