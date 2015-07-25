@@ -15,7 +15,7 @@
 
 		$out = '';
 
-		$content = $xkcd->fetch($atts['comic']);
+		$content = $xkcd->get($atts['comic']);
 
 		if ($atts['display_title']) {
 

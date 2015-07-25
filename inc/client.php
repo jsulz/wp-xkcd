@@ -21,13 +21,15 @@ if( ! class_exists( 'XKCD' ) ) {
 
 		public function get($comic) {
 			//see if the transient is set
-			$xkcd_transient = get_transient('xckd_comic_request');
 			//if it isn't, then go and get the comic and be on your way
-			if ( ! empty( $xkcd_transient ) ) {
-				return $xkcd_transient;
-			} else {
+			if ( false === ( $xkcd_transient = get_transient('xckd_comic_request' . $comic) ) )   {
 				$request = $this->fetch($comic);
-				set_transient('xckd_comic_request', $request, DAY_IN_SECONDS);
+				set_transient('xckd_comic_request' . $comic, $request, DAY_IN_SECONDS);
+				return $request;
+			} 
+			//if it is set, then by all means, return it
+			else {
+				return $xkcd_transient;
 			}
 
 
