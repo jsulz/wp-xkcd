@@ -1,39 +1,39 @@
 <?php
 
-	if( ! defined( 'ABSPATH' ) ) exit;
+if( ! defined( 'ABSPATH' ) ) exit;
 
-	function js_xkcd_comic( $atts ) {
+function js_xkcd_comic( $atts ) {
 
-		$xkcd = new XKCD_Comic;
+	$xkcd = new XKCD_Comic;
 
-		$atts = shortcode_atts( array(
-				'comic' 		=> '1',
-				'display_title'	=> false,
-				'transcript'	=> false
-				), $atts 
-			);
+	$atts = shortcode_atts( array(
+			'comic' 		=> '1',
+			'display_title'	=> false,
+			'transcript'	=> false
+			), $atts 
+		);
 
-		$out = '';
+	$out = '';
 
-		$content = $xkcd->get($atts['comic']);
+	$content = $xkcd->get($atts['comic']);
 
-		if ($atts['display_title']) {
+	if ($atts['display_title']) {
 
-			$out .= '<h3 class="xkcd-title">' . $content->safe_title .'</h3>'; 
-
-		}
-
-		$out .= '<img class="xkcd-img" src="' . $content->img . '" title="'. $content->alt .'" >';
-
-		if ($atts['transcript']) {
-			$out .= '<div style="display:none">' . esc_html( $content->transcript ) . '</div>';
-		}
-
-		return $out;
-
+		$out .= '<h3 class="xkcd-title">' . $content->safe_title .'</h3>'; 
 
 	}
 
-	add_shortcode( 'xkcd', 'js_xkcd_comic' );
+	$out .= '<img class="xkcd-img" src="' . $content->img . '" title="'. $content->alt .'" >';
+
+	if ($atts['transcript']) {
+		$out .= '<div style="display:none">' . esc_html( $content->transcript ) . '</div>';
+	}
+
+	return $out;
+
+
+}
+
+add_shortcode( 'xkcd', 'js_xkcd_comic' );
 
 ?>

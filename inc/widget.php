@@ -5,70 +5,140 @@
  * Wordpress 2.8 and above
  * @see http://codex.wordpress.org/Widgets_API#Developing_Widgets
  */
+
 class JS_XKCD_Name_Widget extends WP_Widget {
 
     /**
-     * Constructor
-     *
-     * @return void
-     **/
-    function JS_XKCD_Name_Widget() {
-        $widget_ops = array( 'classname' => 'CSS class name', 'description' => 'Description' );
-        $this->WP_Widget( 'CSS class name', 'Title', $widget_ops );
+     * Register widget with WordPress.
+     */
+    function __construct() {
+        parent::__construct(
+            'xkcd_widget', // Base ID
+            __( 'XKCD Widget', 'text_domain' ), // Name
+            array( 'description' => __( 'A widget to show your favorite webcomic!', 'text_domain' ), ) // Args
+        );
     }
 
     /**
-     * Outputs the HTML for this widget.
+     * Front-end display of widget.
      *
-     * @param array  An array of standard parameters for widgets in this theme
-     * @param array  An array of settings for this widget instance
-     * @return void Echoes it's output
-     **/
-    function widget( $args, $instance ) {
-        extract( $args, EXTR_SKIP );
-        echo $before_widget;
-        echo $before_title;
-        echo 'Title'; // Can set this with a widget option, or omit altogether
-        echo $after_title;
+     * @see WP_Widget::widget()
+     *
+     * @param array $args     Widget arguments.
+     * @param array $instance Saved values from database.
+     */
+    public function widget( $args, $instance ) {
 
-    //
-    // Widget display logic goes here
-    //
+        $out = '';
 
-    echo $after_widget;
+        if ( $instance['comic'] == 'specific' ) {
+            $id = $instance['comic_id'];
+        } else {
+            $id = $instance['comic'];
+        }
+
+        $xkcd = new XKCD_Comic();
+        $comic_info = $xkcd->get($id); 
+
+        echo $args['before_widget'];
+
+
+        if ( $instance['comic_title'] ) {
+            echo $args['before_title'] . apply_filters( 'widget_title', $comic_info->safe_title ). $args['after_title'];
+        } else {
+             echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ). $args['after_title'];
+        }
+
+        $out .= '<img src="'. $comic_info->img . '"/>';
+
+        echo $out;
+
+
+        echo $args['after_widget'];
     }
 
     /**
-     * Deals with the settings when they are saved by the admin. Here is
-     * where any validation should be dealt with.
+     * Sanitize widget form values as they are saved.
      *
-     * @param array  An array of new settings as submitted by the admin
-     * @param array  An array of the previous settings
-     * @return array The validated and (if necessary) amended settings
-     **/
-    function update( $new_instance, $old_instance ) {
+     * @see WP_Widget::update()
+     *
+     * @param array $new_instance Values just sent to be saved.
+     * @param array $old_instance Previously saved values from database.
+     *
+     * @return array Updated safe values to be saved.
+     */
+    public function update( $new_instance, $old_instance ) {
+        $instance = array();
 
-        // update logic goes here
-        $updated_instance = $new_instance;
-        return $updated_instance;
+        $instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+        $instance['comic_title'] = ( ! empty ( $new_instance['comic_title'] ) ) ? absint( $new_instance['comic_title'] ) : '';
+        $instance['comic'] = ( ! empty ( $new_instance['comic'] ) ) ? sanitize_text_field( $new_instance['comic'] ) : '';
+        $instance['comic_id'] = ( ! empty ( $new_instance['comic_id'] ) ) ? absint( $new_instance['comic_id'] ) : '';
+
+        return $instance;
     }
 
     /**
-     * Displays the form for this widget on the Widgets page of the WP Admin area.
+     * Back-end widget form.
      *
-     * @param array  An array of the current settings for this widget
-     * @return void Echoes it's output
-     **/
-    function form( $instance ) {
-        $instance = wp_parse_args( (array) $instance, array( array_of_option_name => value_pairs ) );
+     * @see WP_Widget::form()
+     *
+     * @param array $instance Previously saved values from database.
+     */
+    public function form( $instance ) {
+        // Set up the form
+        $title = '';
+        if( isset ( $instance['title'] ) ) {
+            $title = $instance['title'];
+        }
 
-        // display field names here using:
-        // $this->get_field_id( 'option_name' ) - the CSS ID
-        // $this->get_field_name( 'option_name' ) - the HTML name
-        // $instance['option_name'] - the option value
+        $comic_title = '';
+        if( isset ( $instance['comic_title'] ) ) {
+            $comic_title = $instance['comic_title'];
+        }
+
+        $comic = '';
+        if( isset ( $instance['comic'] ) ) {
+            $comic = $instance['comic'];
+        }
+
+        $comic_id = '';
+        if( isset ( $instance['comic_id'] ) ) {
+            $comic_id = $instance['comic_id'];
+        }
+
+        ?>
+        <p>
+        <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label> 
+        <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
+        </p>
+        <p>
+            <input class="checkbox" type="checkbox" value="1" <?php checked( 1, $comic_title ); ?> id="<?php echo $this -> get_field_id( 'comic_title' ); ?>" name="<?php echo $this -> get_field_name( 'comic_title' ); ?>" />
+            <label for="<?php echo $this -> get_field_id( 'comic_title' ); ?>"><?php _e( 'Use XKCD comic title for widget title?' ); ?></label>
+        </p>
+        <p>
+            <label for"<?php echo $this -> get_field_id( 'comic' ); ?>"><?php _e('Dynamic Comic?')?></label>
+            <br>
+            <select name="<?php echo $this -> get_field_name( 'comic' ); ?>">
+                <option <?php echo selected( $comic, 'random', FALSE ); ?> value='random'>Random</option>
+                <option <?php echo selected( $comic, 'latest', FALSE ); ?> value='latest'>Latest</option>
+                <option <?php echo selected( $comic, 'specific', FALSE ); ?> value='specific'>Choose Your Own!</option>
+            </select>   </p>
+        <p>
+        <p>
+        <label for="<?php echo $this->get_field_id( 'comic_id' ); ?>"><?php _e( 'XKCD Comic ID:' ); ?></label> 
+        <input class="widefat" id="<?php echo $this->get_field_id( 'comic_id' ); ?>" name="<?php echo $this->get_field_name( 'comic_id' ); ?>" type="text" value="<?php echo esc_attr( $comic_id ); ?>">
+        </p>
+        <?php 
     }
+
+
+} // class JS_XKCD_Name_Widget
+
+// register JS_XKCD_Name_Widget widget
+function register_xkcd_widget() {
+    register_widget( 'JS_XKCD_Name_Widget' );
 }
-
-add_action( 'widgets_init', create_function( '', "register_widget( 'JS_XKCD_Name_Widget' );" ) );
+add_action( 'widgets_init', 'register_xkcd_widget' );
 
 ?>
