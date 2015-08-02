@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Client/manager for XKCD API
+ * Client for XKCD API
  *
- * @package     XKCD_Embed\XKCD
+ * @package     JS_XKCD
  * @since       0.1-alpha
  */
 
@@ -19,7 +19,7 @@ if( ! class_exists( 'XKCD' ) ) {
 			//nothing to see here
 		}
 
-		public function get($comic) {
+		public function get( $comic ) {
 			//if $comic isn't an integer then it's going to be either "latest" or "random" 
 			//if that's the case, pass the value to the proper function and update the value of $comic accordingly
 			if( ! is_numeric( $comic ) ) { $comic = $this->latest_or_random( $comic ); }
@@ -27,7 +27,7 @@ if( ! class_exists( 'XKCD' ) ) {
 			//see if the transient is set
 
 			//if it isn't, then go and get the comic and be on your way
-			if ( false === ( $xkcd_transient = get_transient('xckd_comic_request__' . $comic) ) )   {
+			if ( false === ( $xkcd_transient = get_transient('xckd_comic_request__' . $comic ) ) )   {
 				$request = $this->fetch( $comic );
 				set_transient( 'xckd_comic_request_' . $comic, $request, DAY_IN_SECONDS );
 				return $request;
@@ -48,13 +48,13 @@ if( ! class_exists( 'XKCD' ) ) {
 
 				return $request->num;
 
-			} elseif ($comic = 'random') {
+			} elseif ( $comic = 'random' ) {
 
 				$request = $this->fetch( '' );
 
 				$latest = $request->num;
 
-				$random_comic = mt_rand(1, $latest);
+				$random_comic = mt_rand( 1, $latest );
 
 				return $random_comic;
 
@@ -66,9 +66,9 @@ if( ! class_exists( 'XKCD' ) ) {
 
 			$full_json = wp_remote_get( 'http://xkcd.com/' . ( $comic ? $comic . '/' : '' ) . 'info.0.json' );
 
-			$body = wp_remote_retrieve_body($full_json);
+			$body = wp_remote_retrieve_body( $full_json );
 
-			$body = json_decode($body);
+			$body = json_decode( $body );
 
 			return $body;
 

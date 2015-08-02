@@ -2,7 +2,7 @@
 
 if( ! defined( 'ABSPATH' ) ) exit;
 
-function js_xkcd_comic( $atts ) {
+function xkcd_api_embed( $atts ) {
 
 	$xkcd = new XKCD_Comic;
 
@@ -13,18 +13,24 @@ function js_xkcd_comic( $atts ) {
 			), $atts 
 		);
 
+	//check to see if the comic attribute is a valid one
+	//if not, return a default setting
+    if( $atts['comic'] != 'latest' && $atts['comic'] != 'random' && ! is_numeric( $atts['comic'] ) ) {
+        $atts['comic'] = '1';
+    }
+
 	$out = '';
 
-	$content = $xkcd->get($atts['comic']);
+	$content = $xkcd->get( $atts['comic'] );
 
-	if ($atts['display_title']) {
+	if ( $atts['display_title'] ) {
 
-		$out .= '<h3 class="xkcd-title">' . $content->safe_title .'</h3>'; 
+		$out .= '<h3 class="xkcd-title">' . esc_attr( $content->safe_title ) .'</h3>'; 
 
 	}
-
-	$out .= '<img class="xkcd-img" src="' . $content->img . '" title="'. $content->alt .'" >';
-
+	$out .= '<a href="http://xkcd.com/' . $content->num . '" target="_blank">';
+	$out .= '<img class="xkcd-img" src="' . esc_url( $content->img ) . '" title="'. esc_attr( $content->alt ) .'" >';
+	$out .= '</a>';
 	if ($atts['transcript']) {
 		$out .= '<div style="display:none">' . esc_html( $content->transcript ) . '</div>';
 	}
@@ -34,6 +40,6 @@ function js_xkcd_comic( $atts ) {
 
 }
 
-add_shortcode( 'xkcd', 'js_xkcd_comic' );
+add_shortcode( 'xkcd', 'xkcd_api_embed' );
 
 ?>

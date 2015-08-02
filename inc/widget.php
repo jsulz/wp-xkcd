@@ -6,7 +6,7 @@
  * @see http://codex.wordpress.org/Widgets_API#Developing_Widgets
  */
 
-class JS_XKCD_Name_Widget extends WP_Widget {
+class XCKD_API_Widget extends WP_Widget {
 
     /**
      * Register widget with WordPress.
@@ -14,8 +14,8 @@ class JS_XKCD_Name_Widget extends WP_Widget {
     function __construct() {
         parent::__construct(
             'xkcd_widget', // Base ID
-            __( 'XKCD Widget', 'text_domain' ), // Name
-            array( 'description' => __( 'A widget to show your favorite webcomic!', 'text_domain' ), ) // Args
+            __( 'XKCD Widget', 'xkcd_embedder' ), // Name
+            array( 'description' => __( 'A widget to show your favorite webcomic!', 'xkcd_embedder' ), ) // Args
         );
     }
 
@@ -38,19 +38,20 @@ class JS_XKCD_Name_Widget extends WP_Widget {
         }
 
         $xkcd = new XKCD_Comic();
-        $comic_info = $xkcd->get($id); 
+        $content = $xkcd->get($id); 
 
         echo $args['before_widget'];
 
 
         if ( $instance['comic_title'] ) {
-            echo $args['before_title'] . apply_filters( 'widget_title', $comic_info->safe_title ). $args['after_title'];
+            echo $args['before_title'] . apply_filters( 'widget_title', esc_attr($content->safe_title) ). $args['after_title'];
         } else {
              echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ). $args['after_title'];
         }
 
-        $out .= '<img src="'. $comic_info->img . '"/>';
-
+        $out .= '<a href="http://xkcd.com/' . $content->num . '" target="_blank">';
+        $out .= '<img class="xkcd-img" src="' . esc_url($content->img) . '" title="'. esc_attr($content->alt) .'" >';
+        $out .= '</a>';
         echo $out;
 
 
@@ -70,6 +71,7 @@ class JS_XKCD_Name_Widget extends WP_Widget {
     public function update( $new_instance, $old_instance ) {
         $instance = array();
 
+        //set and sanitize user inputs
         $instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
         $instance['comic_title'] = ( ! empty ( $new_instance['comic_title'] ) ) ? absint( $new_instance['comic_title'] ) : '';
         $instance['comic'] = ( ! empty ( $new_instance['comic'] ) ) ? sanitize_text_field( $new_instance['comic'] ) : '';
@@ -120,9 +122,9 @@ class JS_XKCD_Name_Widget extends WP_Widget {
             <label for"<?php echo $this -> get_field_id( 'comic' ); ?>"><?php _e('Dynamic Comic?')?></label>
             <br>
             <select name="<?php echo $this -> get_field_name( 'comic' ); ?>">
-                <option <?php echo selected( $comic, 'random', FALSE ); ?> value='random'>Random</option>
-                <option <?php echo selected( $comic, 'latest', FALSE ); ?> value='latest'>Latest</option>
-                <option <?php echo selected( $comic, 'specific', FALSE ); ?> value='specific'>Choose Your Own!</option>
+                <option <?php echo selected( $comic, 'random', FALSE ); ?> value='random'><?php _e( 'Random', 'xkcd_embedder')?></option>
+                <option <?php echo selected( $comic, 'latest', FALSE ); ?> value='latest'><?php _e( 'Latest', 'xkcd_embedder' )?></option>
+                <option <?php echo selected( $comic, 'specific', FALSE ); ?> value='specific'><?php _e( 'Choose Your Own!', 'xkcd_embedder' )?></option>
             </select>   </p>
         <p>
         <p>
@@ -133,11 +135,11 @@ class JS_XKCD_Name_Widget extends WP_Widget {
     }
 
 
-} // class JS_XKCD_Name_Widget
+} // class XCKD_API_Widget
 
-// register JS_XKCD_Name_Widget widget
+// register XCKD_API_Widget widget
 function register_xkcd_widget() {
-    register_widget( 'JS_XKCD_Name_Widget' );
+    register_widget( 'XCKD_API_Widget' );
 }
 add_action( 'widgets_init', 'register_xkcd_widget' );
 
